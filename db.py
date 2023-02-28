@@ -1,15 +1,23 @@
+ICON = "ttticon.jpg"
 # display
 WIDTH = 600
 HEIGHT = 600
 
-BG_COLOR = (20, 200, 140)
-
-ICON = "ttticon.jpg"
-
 ROWS = 3
 COLS = 3
 
-SQUARE_SIZE = WIDTH//COLS
-# lines
-LINE_COLOR = (15, 150, 105)
+SQSIZE = WIDTH//COLS
+
 LINE_WIDTH = 10
+FIG_WIDTH = 20
+
+RADIUS = SQSIZE // 2.5
+
+OFFSET = SQSIZE//5
+
+
+# colors
+BG_COLOR = (20, 200, 140)
+LINE_COLOR = (15, 150, 105)
+CIRCLE_COLOR = (220, 220, 220)
+CROSS_COLOR = (66, 66, 66)
