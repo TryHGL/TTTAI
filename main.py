@@ -47,9 +47,15 @@ class Board():
 
         # diagonal wins
         if self.squares[0][0] == self.squares[1][1] == self.squares[2][2] != 0:
+            # lup = (0 * SQSIZE + OFFSET, 0 * SQSIZE + OFFSET)
+            # rdn = (2 * SQSIZE + 4*OFFSET, 2 * SQSIZE + 4*OFFSET)
+            # pygame.draw.line(screenttt, CROSS_COLOR, lup, rdn, CRSS_WIDTH)
             return self.squares[0][0]
 
         if self.squares[0][2] == self.squares[1][1] == self.squares[2][0] != 0:
+            # ldn = (0 * SQSIZE + OFFSET, 2 * SQSIZE + 4*OFFSET)
+            # rup = (2 * SQSIZE + 4*OFFSET, 0 * SQSIZE + OFFSET)
+            # pygame.draw.line(screenttt, CROSS_COLOR, ldn, rup, CRSS_WIDTH)
             return self.squares[1][1]
         # nothin yet
         return 0
@@ -112,12 +118,31 @@ class AI():
 
             return min_eval, best_move
 
+    def first_move(self, board):
+        if (board.squares[0, 0] or
+            board.squares[0, 2] or
+            board.squares[2, 0] or
+                board.squares[2, 2]):
+            eval, move = 0, (1, 1)
+        elif (board.squares[0, 1] or
+              board.squares[1, 0] or
+                board.squares[1, 1]):
+            eval, move = 0, (0, 0)
+        elif (board.squares[1, 2]):
+            eval, move = 0, (0, 2)
+        elif (board.squares[2, 1]):
+            eval, move = 0, (0, 1)
+        return eval, move
+
     def eval(self, main_board):
         if self.level == 0:
             eval = "random"
             move = self.rand_m(main_board)
         else:
-            eval, move = self.minimax(main_board, False)
+            if (main_board.marked_sqrs == 1):
+                eval, move = self.first_move(main_board)
+            else:
+                eval, move = self.minimax(main_board, False)
 
         print(
             f'AI has chosen to mark the square in pos {move} with an eval of: {eval}')
@@ -131,10 +156,10 @@ class Game:
         self.ai = AI()
         self.gamemode = "ai"
         self.running = True
-        self.draw_lines()
         self.player = 1  # 1 => circle; 2 => cross
 
-    def draw_lines(self) -> None:
+    def draw_board(self) -> None:
+        screenttt.fill(BG_COLOR)
         pygame.draw.line(screenttt, LINE_COLOR,
                          (SQSIZE, 0), (SQSIZE, HEIGHT), LINE_WIDTH)
         pygame.draw.line(screenttt, LINE_COLOR,
@@ -174,6 +199,7 @@ def main():
     game = Game()
     board = game.board
     ai = game.ai
+    game.draw_board()
 
     while True:
 
@@ -181,15 +207,22 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_r]:
+                game = Game()
+                board = game.board
+                ai = game.ai
+                game.draw_board()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
                 row = pos[1] // SQSIZE
                 col = pos[0] // SQSIZE
 
-                if board.sq_empty(row, col):
+                if board.sq_empty(row, col) and board.state() == 0:
                     game.mark(row, col)
 
-        if game.gamemode == "ai" and game.player == ai.player:
+        if game.gamemode == "ai" and game.player == ai.player and not board.isfull() and board.state() == 0:
             pygame.display.update()
 
             row, col = ai.eval(board)
