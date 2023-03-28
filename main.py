@@ -123,16 +123,16 @@ class AI():
             board.squares[0, 2] or
             board.squares[2, 0] or
                 board.squares[2, 2]):
-            eval, move = 0, (1, 1)
+            move = (1, 1)
         elif (board.squares[0, 1] or
               board.squares[1, 0] or
                 board.squares[1, 1]):
-            eval, move = 0, (0, 0)
+            move = (0, 0)
         elif (board.squares[1, 2]):
-            eval, move = 0, (0, 2)
+            move = (0, 2)
         elif (board.squares[2, 1]):
-            eval, move = 0, (0, 1)
-        return eval, move
+            move = (0, 1)
+        return 0, move
 
     def eval(self, main_board):
         if self.level == 0:
@@ -156,7 +156,7 @@ class Game:
         self.ai = AI()
         self.gamemode = "ai"
         self.running = True
-        self.player = 1  # 1 => circle; 2 => cross
+        self.player = 1  # 1 => cross; 2 => circle
 
     def draw_board(self) -> None:
         screenttt.fill(BG_COLOR)
