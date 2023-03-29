@@ -66,6 +66,9 @@ class Board():
     def isempty(self):
         return self.marked_sqrs == 0
 
+    def running(self):
+        return not self.isfull() and self.state() == 0
+
 
 class AI():
     def __init__(self, level=1, player=2):
@@ -193,6 +196,12 @@ class Game:
         self.draw_figure(row, col)
         self.next_turn()
 
+    def running(self):
+        return not self.board.isfull() and self.board.state() == 0
+
+    def ai_turn(self):
+        return self.gamemode == "ai" and self.player == self.ai.player
+
 
 def main():
 
@@ -213,6 +222,8 @@ def main():
                 board = game.board
                 ai = game.ai
                 game.draw_board()
+            if keys[pygame.K_d]:
+                ai.level = 0 if ai.level else 1
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
