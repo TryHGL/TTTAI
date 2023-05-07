@@ -2,6 +2,8 @@
 
 ## Rádoby umělá inteligence v piškvorkách
 
+## Prezentace: https://tinyurl.com/TicTacToeNichita
+
 ### Mnoho lidí se dnes zajímá o umělou inteligenci (AI) a to, jak může být použita k řešení různých problémů. Jeden z nejzajímavějších způsobů, jak si vyzkoušet, jak funguje umělá inteligence, je vytvořit jednoduchou verzi piškvorek, ve které umělá inteligence hraje proti hráči.
 
 Cílem mého projektu bylo vytvořit umělou inteligenci, která by se dokázala postavit proti hráčům v piškvorkách a vždy je porazit. Pro dosažení tohoto cíle jsem se rozhodl využít algoritmus nazvaný Minimax, který je široce používán pro strategické hry, jako jsou právě piškvorky. Minimax algoritmus umožňuje umělé inteligenci vyhodnocovat různé tahy a jejich důsledky, a to až do určité hloubky stromu tahů. Díky tomu může nalézt nejlepší tah, který může na hracím poli zahrát.

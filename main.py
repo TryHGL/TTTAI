@@ -11,7 +11,6 @@ screenttt = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("TicTacToe AI")
 screenttt.fill(BG_COLOR)
 pygame.display.set_icon(pygame.image.load(ICON))
-clock = pygame.time.Clock()
 
 
 class Board():
@@ -98,7 +97,8 @@ class AI():
 
         return e_sqrs[rnd]  # -> (row, col)
 
-    def minimax(self, board, maximize):  # hlavni algoritmus n vyber nejlepsiho tahu
+    # hlavni algoritmus na vyber nejlepsiho tahu
+    def minimax(self, board, maximize):
 
         case = board.state()
 
@@ -239,7 +239,7 @@ def main():  # hlavni funkce
     print(f"AI level : {ai.level}")
     print(f"Gamemod: {game.gamemode}")
 
-    while True:
+    while True:  # hlavni while loop
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
