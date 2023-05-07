@@ -3,6 +3,7 @@ import pygame
 import numpy as np
 import random
 import copy
+import pyautogui
 from db import *
 
 pygame.init()
@@ -10,6 +11,7 @@ screenttt = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("TicTacToe AI")
 screenttt.fill(BG_COLOR)
 pygame.display.set_icon(pygame.image.load(ICON))
+clock = pygame.time.Clock()
 
 
 class Board():
@@ -121,6 +123,8 @@ class AI():
 
             return min_eval, best_move
 
+    # makes the algorithm much faster
+    # since there aren't many first possibilities
     def first_move(self, board):
         if (board.squares[0, 0] or
             board.squares[0, 2] or
@@ -137,6 +141,7 @@ class AI():
             move = (0, 1)
         return 0, move
 
+    # evaluates the position and makes a move accordingly
     def eval(self, main_board):
         if self.level == 0:
             eval = "random"
@@ -154,10 +159,10 @@ class AI():
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, gamemode="ai", aistr=1) -> None:
         self.board = Board()
-        self.ai = AI()
-        self.gamemode = "ai"
+        self.ai = AI(level=aistr)
+        self.gamemode = gamemode
         self.running = True
         self.player = 1  # 1 => cross; 2 => circle
 
@@ -203,12 +208,20 @@ class Game:
         return self.gamemode == "ai" and self.player == self.ai.player
 
 
+def draw_text(text, pos):
+    firafont = pygame.font.SysFont("monospace", 20)
+    img = firafont.render(text, True, (255, 255, 255))
+    screenttt.blit(img, (pos))
+
+
 def main():
 
     game = Game()
     board = game.board
     ai = game.ai
     game.draw_board()
+    print(f"AI level : {ai.level}")
+    print(f"Gamemod: {game.gamemode}")
 
     while True:
 
@@ -216,30 +229,48 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_r]:
-                game = Game()
-                board = game.board
-                ai = game.ai
-                game.draw_board()
-            if keys[pygame.K_d]:
-                ai.level = 0 if ai.level else 1
 
+            # key triggers
+            # only when key released - avoids multiple triggers at once
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_d:
+                    if board.isfull() or board.isempty():
+                        ai.level = 0 if ai.level else 1
+                        print(f"AI level : {ai.level}")
+                    else:
+                        print("Can't ai level mid-game")
+                if event.key == pygame.K_e:
+                    if board.isfull() or board.isempty():
+                        game.gamemode = "pvp" if game.gamemode == "ai" else "ai"
+                        print(f"Gamemod: {game.gamemode}")
+                    else:
+                        print("Can't set gamemode mid-game")
+
+                if event.key == pygame.K_r:
+                    game = Game(gamemode=game.gamemode, aistr=ai.level)
+                    board = game.board
+                    ai = game.ai
+                    game.draw_board()
+                    print(f"AI level : {ai.level}")
+                    print(f"Gamemod: {game.gamemode}")
+
+            # draw figure trigger
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = event.pos
-                row = pos[1] // SQSIZE
-                col = pos[0] // SQSIZE
+                if (game.gamemode == "ai" and game.player != ai.player) or game.gamemode == "pvp":
+                    pos = event.pos
+                    row = pos[1] // SQSIZE
+                    col = pos[0] // SQSIZE
 
-                if board.sq_empty(row, col) and board.state() == 0:
-                    game.mark(row, col)
+                    if board.sq_empty(row, col) and board.state() == 0:
+                        game.mark(row, col)
 
         if game.gamemode == "ai" and game.player == ai.player and not board.isfull() and board.state() == 0:
             pygame.display.update()
-
             row, col = ai.eval(board)
             game.mark(row, col)
 
         pygame.display.update()
+        clock.tick(60)
 
 
 main()
