@@ -36,28 +36,42 @@ class Board():
                     e_sqrs.append((row, col))
         return e_sqrs
 
-    def state(self):
+    def state(self, show=False):
         # vert wins
         for col in range(COLS):
             if self.squares[0][col] == self.squares[1][col] == self.squares[2][col] != 0:
+                if show:
+                    color = CIRCLE_COLOR if self.squares[0][col] == 2 else CROSS_COLOR
+                    sPos = (col * SQSIZE + SQSIZE // 2, 15)
+                    fPos = (col * SQSIZE + SQSIZE // 2, HEIGHT - 15)
+                    pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
                 return self.squares[0][col]
 
         # horiz wins
         for row in range(ROWS):
             if self.squares[row][0] == self.squares[row][1] == self.squares[row][2] != 0:
+                if show:
+                    color = CIRCLE_COLOR if self.squares[row][0] == 2 else CROSS_COLOR
+                    sPos = (15, row * SQSIZE + SQSIZE // 2)
+                    fPos = (WIDTH - 15, row * SQSIZE + SQSIZE // 2)
+                    pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
                 return self.squares[row][0]
 
         # diagonal wins
         if self.squares[0][0] == self.squares[1][1] == self.squares[2][2] != 0:
-            # lup = (0 * SQSIZE + OFFSET, 0 * SQSIZE + OFFSET)
-            # rdn = (2 * SQSIZE + 4*OFFSET, 2 * SQSIZE + 4*OFFSET)
-            # pygame.draw.line(screenttt, CROSS_COLOR, lup, rdn, CRSS_WIDTH)
+            if show:
+                color = CIRCLE_COLOR if self.squares[0][0] == 2 else CROSS_COLOR
+                sPos = (15, 15)
+                fPos = (WIDTH - 15, HEIGHT - 15)
+                pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
             return self.squares[0][0]
 
         if self.squares[0][2] == self.squares[1][1] == self.squares[2][0] != 0:
-            # ldn = (0 * SQSIZE + OFFSET, 2 * SQSIZE + 4*OFFSET)
-            # rup = (2 * SQSIZE + 4*OFFSET, 0 * SQSIZE + OFFSET)
-            # pygame.draw.line(screenttt, CROSS_COLOR, ldn, rup, CRSS_WIDTH)
+            if show:
+                color = CIRCLE_COLOR if self.squares[1][1] == 2 else CROSS_COLOR
+                sPos = (15, HEIGHT - 15)
+                fPos = (WIDTH - 15, 15)
+                pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
             return self.squares[1][1]
         # nothin yet
         return 0
@@ -201,17 +215,11 @@ class Game:
         self.draw_figure(row, col)
         self.next_turn()
 
-    def running(self):
-        return not self.board.isfull() and self.board.state() == 0
+    def isover(self):
+        return self.board.state(show=True) != 0 or self.board.isfull()
 
     def ai_turn(self):
         return self.gamemode == "ai" and self.player == self.ai.player
-
-
-def draw_text(text, pos):
-    firafont = pygame.font.SysFont("monospace", 20)
-    img = firafont.render(text, True, (255, 255, 255))
-    screenttt.blit(img, (pos))
 
 
 def main():
@@ -234,15 +242,15 @@ def main():
             # only when key released - avoids multiple triggers at once
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d:
-                    if board.isfull() or board.isempty():
+                    if not board.running() or board.isempty():
                         ai.level = 0 if ai.level else 1
                         print(f"AI level : {ai.level}")
                     else:
                         print("Can't ai level mid-game")
                 if event.key == pygame.K_e:
-                    if board.isfull() or board.isempty():
+                    if not board.running() or board.isempty():
                         game.gamemode = "pvp" if game.gamemode == "ai" else "ai"
-                        print(f"Gamemod: {game.gamemode}")
+                        print(f"Gamemode: {game.gamemode}")
                     else:
                         print("Can't set gamemode mid-game")
 
@@ -264,13 +272,23 @@ def main():
                     if board.sq_empty(row, col) and board.state() == 0:
                         game.mark(row, col)
 
+                        if game.isover():
+                            pygame.display.update()
+                            game.running = False
+                            pyautogui.alert(
+                                f"Game Over! Player {int(board.state())} wins")
+
         if game.gamemode == "ai" and game.player == ai.player and not board.isfull() and board.state() == 0:
             pygame.display.update()
             row, col = ai.eval(board)
             game.mark(row, col)
 
+            if game.isover():
+                pygame.display.update()
+                game.running = False
+                pyautogui.alert(f"Game Over! Player {int(board.state())} wins")
+
         pygame.display.update()
-        clock.tick(60)
 
 
 main()
