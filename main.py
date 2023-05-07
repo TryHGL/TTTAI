@@ -44,7 +44,8 @@ class Board():
                     color = CIRCLE_COLOR if self.squares[0][col] == 2 else CROSS_COLOR
                     sPos = (col * SQSIZE + SQSIZE // 2, 15)
                     fPos = (col * SQSIZE + SQSIZE // 2, HEIGHT - 15)
-                    pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
+                    pygame.draw.line(screenttt, color, sPos,
+                                     fPos, CRSS_WIDTH - 8)
                 return self.squares[0][col]
 
         # horiz wins
@@ -54,7 +55,8 @@ class Board():
                     color = CIRCLE_COLOR if self.squares[row][0] == 2 else CROSS_COLOR
                     sPos = (15, row * SQSIZE + SQSIZE // 2)
                     fPos = (WIDTH - 15, row * SQSIZE + SQSIZE // 2)
-                    pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
+                    pygame.draw.line(screenttt, color, sPos,
+                                     fPos, CRSS_WIDTH - 8)
                 return self.squares[row][0]
 
         # diagonal wins
@@ -281,8 +283,12 @@ def main():  # hlavni funkce
                         if game.isover():
                             pygame.display.update()
                             game.running = False
-                            pyautogui.alert(
-                                f"Game Over! Player {int(board.state())} wins")
+                            if board.state() == 0:
+                                pyautogui.alert(
+                                    f"Game Over! It's a Tie")
+                            else:
+                                pyautogui.alert(
+                                    f"Game Over! Player {int(board.state())} wins")
         # vykreslovani pomoci ai
         if game.gamemode == "ai" and game.player == ai.player and not board.isfull() and board.state() == 0:
             pygame.display.update()
@@ -292,7 +298,12 @@ def main():  # hlavni funkce
             if game.isover():  # kontroluje jestli je hra u konce a oznami vyherce pokud tomu tak je
                 pygame.display.update()
                 game.running = False
-                pyautogui.alert(f"Game Over! Player {int(board.state())} wins")
+                if board.state() == 0:
+                    pyautogui.alert(
+                        f"Game Over! It's a Tie")
+                else:
+                    pyautogui.alert(
+                        f"Game Over! Player {int(board.state())} wins")
 
         pygame.display.update()
 
