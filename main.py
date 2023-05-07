@@ -21,14 +21,14 @@ class Board():
         self.empty_sqrs = self.squares
         self.marked_sqrs = 0
 
-    def mark_sqr(self, row, col, player):
+    def mark_sqr(self, row, col, player):  # oznaceni policka
         self.squares[row][col] = player
         self.marked_sqrs += 1
 
-    def sq_empty(self, row, col):
+    def sq_empty(self, row, col):  # kontrola jestli je pole prazdne
         return self.squares[row][col] == 0
 
-    def get_empty(self):
+    def get_empty(self):  # vrati seznam prazdnych poli
         e_sqrs = []
         for row in range(ROWS):
             for col in range(COLS):
@@ -36,7 +36,7 @@ class Board():
                     e_sqrs.append((row, col))
         return e_sqrs
 
-    def state(self, show=False):
+    def state(self, show=False):  # kontroluje stav hry a zobrazuje vyherce
         # vert wins
         for col in range(COLS):
             if self.squares[0][col] == self.squares[1][col] == self.squares[2][col] != 0:
@@ -73,16 +73,15 @@ class Board():
                 fPos = (WIDTH - 15, 15)
                 pygame.draw.line(screenttt, color, sPos, fPos, CRSS_WIDTH)
             return self.squares[1][1]
-        # nothin yet
         return 0
 
-    def isfull(self):
+    def isfull(self):  # kontrola jestli jsou vsechna pole plna
         return self.marked_sqrs == 9
 
-    def isempty(self):
+    def isempty(self):  # kontrola jestli jsou vsechna pole prazdna
         return self.marked_sqrs == 0
 
-    def running(self):
+    def running(self):  # kontrola jestli hra ma stale bezet
         return not self.isfull() and self.state() == 0
 
 
@@ -91,13 +90,13 @@ class AI():
         self.level = level
         self.player = player
 
-    def rand_m(self, board):
+    def rand_m(self, board):  # vybere nahodne pole
         e_sqrs = board.get_empty()
         rnd = random.randrange(0, len(e_sqrs))
 
         return e_sqrs[rnd]  # -> (row, col)
 
-    def minimax(self, board, maximize):
+    def minimax(self, board, maximize):  # hlavni algoritmus n vyber nejlepsiho tahu
 
         case = board.state()
 
@@ -137,25 +136,32 @@ class AI():
 
             return min_eval, best_move
 
-    # makes the algorithm much faster
-    # since there aren't many first possibilities
+    # zrychleni algoritmu
+    # jelikoz na zacatku neni moc moznosti
     def first_move(self, board):
         if (board.squares[0, 0] or
             board.squares[0, 2] or
             board.squares[2, 0] or
                 board.squares[2, 2]):
             move = (1, 1)
-        elif (board.squares[0, 1] or
-              board.squares[1, 0] or
-                board.squares[1, 1]):
-            move = (0, 0)
-        elif (board.squares[1, 2]):
-            move = (0, 2)
-        elif (board.squares[2, 1]):
-            move = (0, 1)
+        elif board.squares[0, 1]:
+            moves = [(0, 0), (0, 2), (2, 1)]
+            move = moves[random.randrange(0, 3)]
+        elif board.squares[1, 0]:
+            moves = [(0, 0), (2, 0), (1, 2)]
+            move = moves[random.randrange(0, 3)]
+        elif board.squares[1, 1]:
+            moves = [(0, 0), (0, 2), (2, 0), (2, 2)]
+            move = moves[random.randrange(0, 4)]
+        elif board.squares[1, 2]:
+            moves = [(0, 2), (1, 0), (2, 2)]
+            move = moves[random.randrange(0, 3)]
+        elif board.squares[2, 1]:
+            moves = [(0, 1), (2, 0), (2, 2)]
+            move = moves[random.randrange(0, 3)]
         return 0, move
 
-    # evaluates the position and makes a move accordingly
+    # pouzije hlavni algoritmus, zhodnoti, a vrati nejlepsi tah
     def eval(self, main_board):
         if self.level == 0:
             eval = "random"
@@ -180,7 +186,7 @@ class Game:
         self.running = True
         self.player = 1  # 1 => cross; 2 => circle
 
-    def draw_board(self) -> None:
+    def draw_board(self) -> None:  # vykresli hru
         screenttt.fill(BG_COLOR)
         pygame.draw.line(screenttt, LINE_COLOR,
                          (SQSIZE, 0), (SQSIZE, HEIGHT), LINE_WIDTH)
@@ -192,7 +198,7 @@ class Game:
         pygame.draw.line(screenttt, LINE_COLOR,
                          (0, 2*SQSIZE), (WIDTH, 2*SQSIZE), LINE_WIDTH)
 
-    def draw_figure(self, row, col):
+    def draw_figure(self, row, col):  # vykresli kolecko nebo krizek
         if self.player == 2:
             # circle
             center = (col * SQSIZE + SQSIZE // 2,
@@ -207,22 +213,22 @@ class Game:
             pygame.draw.line(screenttt, CROSS_COLOR, lup, rdn, CRSS_WIDTH)
             pygame.draw.line(screenttt, CROSS_COLOR, ldn, rup, CRSS_WIDTH)
 
-    def next_turn(self):
+    def next_turn(self):  # prepne na dalsi kolo (dalsi hrac)
         self.player = self.player % 2 + 1
 
-    def mark(self, row, col):
+    def mark(self, row, col):  # oznaci pole
         self.board.mark_sqr(row, col, self.player)
         self.draw_figure(row, col)
         self.next_turn()
 
-    def isover(self):
+    def isover(self):  # kontrola zda je hra u konce
         return self.board.state(show=True) != 0 or self.board.isfull()
 
-    def ai_turn(self):
+    def ai_turn(self):  # kontrola jestli je na rade ai
         return self.gamemode == "ai" and self.player == self.ai.player
 
 
-def main():
+def main():  # hlavni funkce
 
     game = Game()
     board = game.board
@@ -238,23 +244,23 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            # key triggers
-            # only when key released - avoids multiple triggers at once
+            # spoustece na klavesy
+            # spusti se pouze po zvednuti, aby se predeslo opakovani spousteni
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d:  # zmeni uroven ai
                     if not board.running() or board.isempty():
                         ai.level = 0 if ai.level else 1
                         print(f"AI level : {ai.level}")
                     else:
                         print("Can't ai level mid-game")
-                if event.key == pygame.K_e:
+                if event.key == pygame.K_e:  # zmeni styl hry (pvp, nebo ai)
                     if not board.running() or board.isempty():
                         game.gamemode = "pvp" if game.gamemode == "ai" else "ai"
                         print(f"Gamemode: {game.gamemode}")
                     else:
                         print("Can't set gamemode mid-game")
 
-                if event.key == pygame.K_r:
+                if event.key == pygame.K_r:  # resetuje hru
                     game = Game(gamemode=game.gamemode, aistr=ai.level)
                     board = game.board
                     ai = game.ai
@@ -262,7 +268,7 @@ def main():
                     print(f"AI level : {ai.level}")
                     print(f"Gamemod: {game.gamemode}")
 
-            # draw figure trigger
+            # spoustec vykresleni figury (krizek, kolecko)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if (game.gamemode == "ai" and game.player != ai.player) or game.gamemode == "pvp":
                     pos = event.pos
@@ -277,13 +283,13 @@ def main():
                             game.running = False
                             pyautogui.alert(
                                 f"Game Over! Player {int(board.state())} wins")
-
+        # vykreslovani pomoci ai
         if game.gamemode == "ai" and game.player == ai.player and not board.isfull() and board.state() == 0:
             pygame.display.update()
             row, col = ai.eval(board)
             game.mark(row, col)
 
-            if game.isover():
+            if game.isover():  # kontroluje jestli je hra u konce a oznami vyherce pokud tomu tak je
                 pygame.display.update()
                 game.running = False
                 pyautogui.alert(f"Game Over! Player {int(board.state())} wins")
