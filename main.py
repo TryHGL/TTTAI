@@ -45,7 +45,7 @@ class Board():
                     sPos = (col * SQSIZE + SQSIZE // 2, 15)
                     fPos = (col * SQSIZE + SQSIZE // 2, HEIGHT - 15)
                     pygame.draw.line(screenttt, color, sPos,
-                                     fPos, CRSS_WIDTH - 8)
+                                     fPos, CRSS_WIDTH - 6)
                 return self.squares[0][col]
 
         # horiz wins
@@ -56,7 +56,7 @@ class Board():
                     sPos = (15, row * SQSIZE + SQSIZE // 2)
                     fPos = (WIDTH - 15, row * SQSIZE + SQSIZE // 2)
                     pygame.draw.line(screenttt, color, sPos,
-                                     fPos, CRSS_WIDTH - 8)
+                                     fPos, CRSS_WIDTH - 6)
                 return self.squares[row][0]
 
         # diagonal wins
